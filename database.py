@@ -1,6 +1,5 @@
 import sqlite3
 
-
 class Products:
     def __init__(self, db_file):
         self.conn = sqlite3.connect(db_file)
@@ -51,6 +50,11 @@ class Products:
             "DELETE FROM products WHERE product_id=?", (product_id,))
         self.conn.commit()
 
+    def search_by_warehouse_no(self, warehouse_id):
+        self.cur.execute("SELECT * FROM products WHERE warehouse_id = ?", (warehouse_id,))
+        rows = self.cur.fetchall()
+        return rows
+
     def update(self, rowid, product_id, warehouse_id, product_brand, product_name, existing_quantity, cost_price,
                selling_price):
         self.cur.execute("""UPDATE products SET
@@ -72,49 +76,6 @@ class Products:
         self.conn.close()
 
 
-import sqlite3
-
-
-class Supplier:
-    def __init__(self, db_file):
-        self.conn = sqlite3.connect(db_file)
-        self.cur = self.conn.cursor()
-        self.cur.execute("""CREATE TABLE IF NOT EXISTS
-        supplier (
-            "sid" INTEGER UNIQUE NOT NULL,
-            "product_id" INTEGER NOT NULL,
-            "contact_no" NUMERIC NOT NULL,
-            "name" TEXT NOT NULL,
-            "rating" TEXT NOT NULL,
-            PRIMARY KEY("sid")
-            FOREIGN KEY("product_id") REFERENCES products("product_id")
-        );
-        """)
-        self.conn.commit()
-
-    def fetch_all_rows(self):
-        self.cur.execute("SELECT * FROM supplier")
-        rows = self.cur.fetchall()
-        return rows
-
-    def fetch_by_warehouse_no(self, sid):
-        self.cur.execute("SELECT * FROM supplier WHERE sid=?", (sid,))
-        row = self.cur.fetchone()
-        return row
-
-    def insert(self, sid, product_id, contact_no, name, rating):
-        self.cur.execute("INSERT INTO supplier VALUES (?, ?, ?, ?)", (sid, product_id, contact_no, name, rating))
-        self.conn.commit()
-
-    def remove(self, sid):
-        self.cur.execute("DELETE FROM supplier WHERE sid=?", (sid,))
-        self.conn.commit()
-
-    def update(self, sid, product_id, contact_no, name, rating):
-        self.cur.execute("UPDATE supplier SET product_id=?, contact_no=?, name=?, rating=? WHERE sid=?",
-                         (sid, product_id, contact_no, name, rating))
-        self.conn.commit()
-
 class Warehouse:
     def __init__(self, db_file):
         self.conn = sqlite3.connect(db_file)
@@ -133,6 +94,11 @@ class Warehouse:
 
     def fetch_all_rows(self):
         self.cur.execute("SELECT * FROM warehouses")
+        rows = self.cur.fetchall()
+        return rows
+
+    def search_by_warehouse_no(self, warehouse_id):
+        self.cur.execute("SELECT * FROM warehouses WHERE warehouse_no = ?", (warehouse_id,))
         rows = self.cur.fetchall()
         return rows
 

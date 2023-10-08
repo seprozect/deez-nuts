@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox
-from tkinter.ttk import LabelFrame, Label, Button, Entry, Frame, Scrollbar, Style
+from tkinter.ttk import LabelFrame, Label, Frame, Scrollbar, Treeview
+from tkinter import *
+from tkinter.ttk import Progressbar, Entry, Button
 from ttkthemes import themed_tk
 from database import Products, Warehouse
 from PIL import Image, ImageTk
@@ -20,6 +22,24 @@ if __name__ == '__main__':
             string = str(num + 1) + string
             product_list_listbox.insert(tk.END, string)
 
+    def search_warehouse():
+        # Get the warehouse ID entered by the user
+        search_id = search_warehouse_id_var.get()
+
+        # Clear the existing results
+        results_listbox.delete(0, tk.END)
+
+        # Perform the search in the warehouse database
+        matching_items = products_db.search_by_warehouse_no(search_id)
+
+        if matching_items:
+            # If there are matching items, populate the results_listbox
+            for item in matching_items:
+                result_string = f"Warehouse ID: {item[0]}, Product ID: {item[1]}, Quantity: {item[2]}"
+                results_listbox.insert(tk.END, result_string)
+        else:
+            # If no matching items are found, display a message
+            results_listbox.insert(tk.END, "No matching items found")
 
     # Function to bind listbox
     def select_item(event):
@@ -43,8 +63,7 @@ if __name__ == '__main__':
             pass
 
 
-    # Create main window with using themed_tk
-    # provides themed widgets and window styles for Tkinter
+    # Create main window
     root = themed_tk.ThemedTk()
     root.set_theme("scidpurple")
 
@@ -122,7 +141,7 @@ if __name__ == '__main__':
     search_warehouse_id_entry.grid(row=0, column=3,columnspan=4, padx=15)
 
     # Search Button
-    search_button = Button(warehouse_frame, text="Search")
+    search_button = Button(warehouse_frame, text="Search", command=search_warehouse)
     search_button.grid(row=0, column=10, columnspan=2, padx=20)
 
     # Listbox for Warehouse results
@@ -269,5 +288,60 @@ if __name__ == '__main__':
     results_frame.grid_columnconfigure(0, weight=2)
 
     populate_list()
+# ---------------------------------------------------- Second Page -----------------------------------------------------------------------------
+
+    def open_dashboard():
+        dashboard_window = tk.Toplevel(root)
+        dashboard_window.title("Dashboard")
+        dashboard_window.geometry('800x400')
+        dashboard_window.iconphoto(True, icon)
+
+        # Dashboard Title
+        dashboard_title = Label(dashboard_window, text="Inventory Management Dashboard", font=("Arial", 16))
+        dashboard_title.pack(pady=10)
+
+        # Display Metrics
+        metrics_frame = LabelFrame(dashboard_window, text="Key Metrics")
+        metrics_frame.pack(padx=20, pady=10, fill='both', expand=True)
+
+        total_products_label = Label(metrics_frame, text="Total Products:")
+        total_products_label.grid(row=0, column=0, padx=10, pady=5, sticky="w")
+        total_products_value = Label(metrics_frame, text=len(products_db.fetch_all_rows()))
+        total_products_value.grid(row=0, column=1, padx=10, pady=5)
+
+        total_stock_value_label = Label(metrics_frame, text="Total Stock Value:")
+        total_stock_value_label.grid(row=1, column=0, padx=10, pady=5, sticky="w")
+        total_stock_value = Label(metrics_frame, text="Calculate Total Stock Value Here")  # You can compute this value
+        total_stock_value.grid(row=1, column=1, padx=10, pady=5)
+
+        # Recent Transactions
+        transactions_frame = LabelFrame(dashboard_window, text="Recent Transactions")
+        transactions_frame.pack(padx=20, pady=10, fill='both', expand=True)
+
+        transactions_treeview = Treeview(transactions_frame, columns=("Date", "Transaction Type", "Product Name"),
+                                         show="headings")
+        transactions_treeview.heading("Date", text="Date")
+        transactions_treeview.heading("Transaction Type", text="Transaction Type")
+        transactions_treeview.heading("Product Name", text="Product Name")
+
+        transactions_treeview.column("Date", width=150)
+        transactions_treeview.column("Transaction Type", width=150)
+        transactions_treeview.column("Product Name", width=250)
+
+        transactions_treeview.grid(row=0, column=0, padx=10, pady=5, sticky="nsew")
+
+        scrollbar = Scrollbar(transactions_frame, orient="vertical", command=transactions_treeview.yview)
+        scrollbar.grid(row=0, column=1, sticky="ns")
+        transactions_treeview.configure(yscrollcommand=scrollbar.set)
+
+        # Add sample transactions (replace with actual data)
+        transactions_treeview.insert("", "end", values=("2023-10-01", "Purchase", "Product A"))
+        transactions_treeview.insert("", "end", values=("2023-10-02", "Sale", "Product B"))
+        transactions_treeview.insert("", "end", values=("2023-10-03", "Sale", "Product C"))
+
+
+    # Add a "Dashboard" button to the main window
+    dashboard_button = Button(root, text="Open Dashboard", command=open_dashboard)
+    dashboard_button.grid(row=6, column=0, sticky="we", padx=10, pady=5)
 
     root.mainloop()
