@@ -344,4 +344,5 @@ if __name__ == '__main__':
     dashboard_button = Button(root, text="Open Dashboard", command=open_dashboard)
     dashboard_button.grid(row=6, column=0, sticky="we", padx=10, pady=5)
 
+    print(1)
     root.mainloop()
