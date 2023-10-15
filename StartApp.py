@@ -5,6 +5,7 @@ import sys
 import os
 import time
 
+
 root = Tk()
 
 # Loading Screen Image

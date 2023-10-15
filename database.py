@@ -1,5 +1,6 @@
 import sqlite3
 
+
 class Products:
     def __init__(self, db_file):
         self.conn = sqlite3.connect(db_file)
@@ -37,6 +38,30 @@ class Products:
             (product_id,))
         row = self.cur.fetchall()
         return row
+
+    def calculate_sell_price(self):
+        try:
+            # Execute the query to calculate the sum of selling prices
+            self.cur.execute("SELECT SUM(existing_quantity * selling_price) FROM products")
+            result = self.cur.fetchone()
+            if result:
+                return result[0]  # Extract the sum of selling prices
+
+        except sqlite3.Error as e:
+            print(f"SQLite error: {e}")
+            return None
+
+    def calculate_cost_price(self):
+        try:
+            # Execute the query to calculate the sum of selling prices
+            self.cur.execute("SELECT SUM(existing_quantity * cost_price) FROM products")
+            result = self.cur.fetchone()
+            if result:
+                return result[0]  # Extract the sum of selling prices
+
+        except sqlite3.Error as e:
+            print(f"SQLite error: {e}")
+            return None
 
     def insert(self, product_id, warehouse_id, product_brand, product_name, existing_quantity, cost_price,
                selling_price):

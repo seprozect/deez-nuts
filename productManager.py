@@ -6,6 +6,7 @@ from tkinter.ttk import Progressbar, Entry, Button
 from ttkthemes import themed_tk
 from database import Products, Warehouse
 from PIL import Image, ImageTk
+import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
 
@@ -309,10 +310,17 @@ if __name__ == '__main__':
         total_products_value = Label(metrics_frame, text=len(products_db.fetch_all_rows()))
         total_products_value.grid(row=0, column=1, padx=10, pady=5)
 
-        total_stock_value_label = Label(metrics_frame, text="Total Stock Value:")
+        total_stock_value_label = Label(metrics_frame, text="Total Stock Cost Value:")
+        total_cost_sum = products_db.calculate_cost_price()
         total_stock_value_label.grid(row=1, column=0, padx=10, pady=5, sticky="w")
-        total_stock_value = Label(metrics_frame, text="Calculate Total Stock Value Here")  # You can compute this value
+        total_stock_value = Label(metrics_frame, text='$ ' + str(total_cost_sum))
         total_stock_value.grid(row=1, column=1, padx=10, pady=5)
+
+        total_sell_value_label = Label(metrics_frame, text="Total Stock Sell Value:")
+        total_sell_sum = products_db.calculate_sell_price()
+        total_sell_value_label.grid(row=2, column=0, padx=10, pady=5, sticky="w")
+        total_sell_value = Label(metrics_frame, text='$ ' + str(total_sell_sum))
+        total_sell_value.grid(row=2, column=1, padx=10, pady=5)
 
         # Recent Transactions
         transactions_frame = LabelFrame(dashboard_window, text="Recent Transactions")
@@ -344,5 +352,4 @@ if __name__ == '__main__':
     dashboard_button = Button(root, text="Open Dashboard", command=open_dashboard)
     dashboard_button.grid(row=6, column=0, sticky="we", padx=10, pady=5)
 
-    print(1)
     root.mainloop()
